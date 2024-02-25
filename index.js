@@ -17,9 +17,7 @@ mongoose
     .catch(err => console.log(err))
 
 
-app.use('/' , (req , res)=>{
-    res.send('Hello this is a express app for api')
-})
+
 
 
 app.post('/addData', async (req, res) => {
@@ -101,15 +99,20 @@ app.delete('/deleteData/:id', async (req, res) => {
 app.post('/login', async (req, res) => {
     const { username, password } = req.body
     const userData = await Admin.findOne({ username })
-    if (userData) {
-        if (userData.password === password) {
-            const jwtToken = jwt.sign({ username }, 'JWT_SECRET')
-
-            res.status(200).send({ jwtToken })
+    try{
+        if (userData) {
+            if (userData.password === password) {
+                const jwtToken = jwt.sign({ username }, 'JWT_SECRET')
+    
+                return res.status(200).send({ jwtToken })
+            }
+        } else {
+            return res.status(400).send({ err: "Invalid credentials" })
         }
-    } else {
-        return res.status(400).send({ err: "Invalid credentials" })
+    }catch(e){
+        return res.status(500).send({error:e , errMsg:'Some Error Ocurred'})
     }
+    
 })
 
 
