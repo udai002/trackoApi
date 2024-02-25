@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv').config()
-const port = dotenv.parsed.PORT
+const port = dotenv.parsed.PORT || 3000
 
 const Admin = require('./models/Admin')
 const { default: mongoose } = require('mongoose')
@@ -16,6 +16,10 @@ mongoose
     .then(() => console.log('db connected'))
     .catch(err => console.log(err))
 
+
+app.use('/' , (req , res)=>{
+    res.send('Hello this is a express app for api')
+})
 
 
 app.post('/addData', async (req, res) => {

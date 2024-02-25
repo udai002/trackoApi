@@ -3,7 +3,7 @@
     "builds": [
       {
    
-        "src": "./server/server.js",
+        "src": "index.js",
 
         "use": "@now/node"
       }
