@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const jwt = require('jsonwebtoken')
+const cors = require('cors')
 const dotenv = require('dotenv').config()
 const port = dotenv.parsed.PORT || 3000
 
@@ -9,6 +10,7 @@ const { default: mongoose } = require('mongoose')
 const corrier = require('./models/corrier')
 
 app.use(express.json())
+app.use(cors())
 
 console.log(port)
 mongoose
