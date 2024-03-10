@@ -8,6 +8,7 @@ const port = dotenv.parsed.PORT || 3000
 const Admin = require('./models/Admin')
 const { default: mongoose } = require('mongoose')
 const corrier = require('./models/corrier')
+const Employee = require('./models/Employee')
 
 app.use(express.json())
 app.use(cors())
@@ -20,85 +21,44 @@ mongoose
 
 
 
-
-
-app.post('/addData', async (req, res) => {
-
-    const { title, senderAddress, receiverAddress, } = req.body
-    const uniqueId = Date.now()
-
-    try {
-        const createdData = await corrier.create({
-            trackingId: uniqueId,
-            title,
-            senderAddress,
-            receiverAddress
-        })
-
-        if (createdData) {
-            res.status(200).send(createdData)
-        }
-    } catch (err) {
-        res.status(500).send({ err })
+// to get the employee data 
+app.get('/api/users' , async (req , res)=>{
+    try{
+        const users = await Employee.find()
+        res.status(200).send(users)
+    }catch(e){
+        res.send(500).send({msg:"Something went wrong" , err :e})
     }
-
+     
 })
 
-
-//get the corrier data
-app.get('/getData', async (req, res) => {
-    const data = await corrier.find().then(data => {
-        return res.status(200).send(data)
-    }).catch(err => {
-        return res.status(500).send({ err })
-    })
-
-})
-
-//Get data by tracking id
-app.get('/getData/:id', async (req, res) => {
-    try {
-        const { id } = req.params
-        const data = await corrier.findOne({ trackingId: id })
-        res.send(data)
-    } catch (e) {
-        return res.status(500).send({ err: "Some error Occurred" })
-    }
-
-})
-
-// to update data 
-app.post('/updateData/:id', async (req, res) => {
-    const { id } = req.params
-    const { location, Address } = req.body
-    const timeStamp = Date.now()
-    const locationData = { location, Address, time: timeStamp }
-    try {
-        const prevData = await corrier.findOne({ trackingId: id })
-        const UpdateArray = prevData.updates
-        const data = await corrier.updateOne({ trackingId: id }, { $set: { updates: [...UpdateArray, locationData] } })
-        res.send(data)
-    } catch (e) {
-        res.status(500).send({ err: "Some Error Occured" })
-    }
-
-
-})
-
-
-// to delete data 
-app.delete('/deleteData/:id', async (req, res) => {
-    const { id } = req.params
-    await corrier.deleteOne({ trackingId: id }).then(() => {
-        return res.send("Deleted successfully")
-    }).catch(err => {
-        res.send({ err })
+// to update the employee data 
+app.post('/api/user_update/:id', async (req,res)=>{
+    const {name , mobileNo ,  email , designation , gender , course  } = req.body 
+    const {id} = req.params
+    await Employee.findOneAndUpdate({user_id:id}, {
+        name , mobile_no:mobileNo , email , designation , gender , course
+    }).then(()=>{
+        res.status(200).send({msg:"Successfully updated" , status:true})
+    }).catch(e=>{
+        res.status(500).send({msg:"something went wrong" , err:e , status:false})
     })
 })
 
+
+// to create a employee data 
+app.post('/api/create_employee' , async (req , res)=>{
+    const {name , mobileNo ,  email , designation , gender , course  } = req.body 
+    await Employee.create({name , mobile_no:mobileNo , email  , designation , gender ,course }).then(()=>{
+        res.status(200).send({msg:"users successfully created"})
+    }).catch(e=>{
+        res.status(500).send({msg:"something went wrong " , err:e})
+    })
+
+})
 
 // to login Admin
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { username, password } = req.body
     const userData = await Admin.findOne({ username })
     try{
@@ -119,7 +79,7 @@ app.post('/login', async (req, res) => {
 
 
 // to signup admin
-app.post('/signup', async (req, res) => {
+app.post('/api/signup', async (req, res) => {
     const { username, email, password } = req.body
     //checking wheather the user already exist
     const user = await Admin.findOne({ username })
