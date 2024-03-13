@@ -57,6 +57,19 @@ app.post('/api/create_employee' , async (req , res)=>{
 
 })
 
+
+//to get user data using user id 
+app.get('/api/user/:id' , async (req , res)=>{
+    const {id} = req.params
+    console.log(id)
+    await Employee.findOne({user_id:id}).then(jsonData=>{
+        res.status(200).send(jsonData)
+    }).catch(e=>{
+        res.status(500).send({msg:"Something definitly went wrong" , e})
+    })
+})
+
+
 // to login Admin
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body
